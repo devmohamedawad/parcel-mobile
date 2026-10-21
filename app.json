@@ -29,6 +29,32 @@
         "projectId": "0793f78d-4f33-4060-b6f4-bdf76c554475"
       }
     },
-    "owner": "shenawy22"
+    "owner": "shenawy22",
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "BabJet Rider uses your location to show your route and the next stop.",
+          "locationAlwaysAndWhenInUsePermission": "BabJet Rider records your route while you are on shift, even when the app is in the background.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true,
+          "androidForegroundServiceIcon": "./assets/notification-icon.png"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#E0561B"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
