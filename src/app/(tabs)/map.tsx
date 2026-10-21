@@ -3,29 +3,39 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import RiderMap from '@/components/map/RiderMap';
+import RouteStops from '@/components/map/RouteStops';
 import AppText from '@/components/ui/AppText';
 import Icon from '@/components/ui/Icon';
+import { useRemote } from '@/hooks/useRemote';
+import { lngLat } from '@/lib/stops';
+import type { TodayWork } from '@/lib/types';
 import { colors, radius, shadow } from '@/theme';
 
 export default function MapScreen() {
     const { user, t } = useAuth();
     const insets = useSafeAreaInsets();
     const [follow, setFollow] = useState(true);
+    const { data: work } = useRemote<TodayWork>('today');
+    const deliveries = work?.deliveries ?? [];
+    const located = deliveries.filter((parcel) => lngLat(parcel) !== null).length;
     const onShift = Boolean(user?.shift);
+    const subtitle = deliveries.length > 0 ? (located > 0 ? t('stopsCount', { count: located }) : t('noTasksOnMap')) : onShift ? t('trackingOn') : t('mapOffShift');
 
     return (
         <View style={styles.screen}>
-            <RiderMap style={StyleSheet.absoluteFill} follow={follow} onFollowChange={setFollow} />
+            <RiderMap style={StyleSheet.absoluteFill} follow={follow} onFollowChange={setFollow}>
+                <RouteStops deliveries={deliveries} />
+            </RiderMap>
 
             <View style={[styles.top, { top: insets.top + 12 }]}>
                 <View style={styles.title}>
-                    <Icon name={onShift ? 'navigate' : 'navigate-outline'} size={20} color={colors.brandText} />
+                    <Icon name="git-branch-outline" size={20} color={colors.brandText} />
                     <View style={styles.titleText}>
                         <AppText weight="extrabold" size={15}>
-                            {t('mapTitle')}
+                            {deliveries.length > 0 ? t('mapRoute') : t('mapTitle')}
                         </AppText>
                         <AppText size={12} color={colors.muted}>
-                            {onShift ? t('trackingOn') : t('mapOffShift')}
+                            {subtitle}
                         </AppText>
                     </View>
                 </View>
