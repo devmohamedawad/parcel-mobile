@@ -18,7 +18,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.babjet.rider"
+      "package": "com.babjet.rider",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -51,10 +52,24 @@
           "icon": "./assets/notification-icon.png",
           "color": "#E0561B"
         }
-      ]
+      ],
+      [
+        "expo-localization",
+        {
+          "supportsRTL": true,
+          "supportedLocales": [
+            "ar",
+            "en"
+          ]
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "@maplibre/maplibre-react-native"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "backgroundColor": "#F5F3F0"
   }
 }

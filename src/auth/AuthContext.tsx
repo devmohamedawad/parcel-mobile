@@ -1,7 +1,7 @@
 import * as Device from 'expo-device';
 import { createContext, type PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '@/lib/api';
-import { type Locale, type StringKey, translate } from '@/lib/i18n';
+import { deviceLocale, type Locale, type StringKey, translate } from '@/lib/i18n';
 import { clearToken, getToken, setToken } from '@/lib/session';
 import type { RiderProfile } from '@/lib/types';
 
@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: PropsWithChildren) {
     const [ready, setReady] = useState(false);
     const [user, setUser] = useState<RiderProfile | null>(null);
-    const locale: Locale = user?.locale === 'en' ? 'en' : 'ar';
+    const [locale] = useState<Locale>(deviceLocale);
 
     const refresh = useCallback(async () => {
         setUser(await api<RiderProfile>('me', { locale }));
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 setUser(result.user);
             },
             signOut: async () => {
-                await api('logout', { method: 'POST' }).catch(() => undefined);
+                await api('logout', { method: 'POST', locale }).catch(() => undefined);
                 await clearToken();
                 setUser(null);
             },
