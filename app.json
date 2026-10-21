@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "BabJet Rider",
+    "slug": "babjet-rider",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.babjet.rider"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.babjet.rider"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "babjetrider",
+    "extra": {
+      "eas": {
+        "projectId": "0793f78d-4f33-4060-b6f4-bdf76c554475"
+      }
+    },
+    "owner": "shenawy22"
+  }
+}
