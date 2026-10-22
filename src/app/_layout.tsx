@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '@/auth/AuthContext';
 import LaunchSplash from '@/components/LaunchSplash';
+import { useNotificationLinks } from '@/hooks/useNotificationLinks';
 import { colors } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -34,8 +35,9 @@ export default function RootLayout() {
 }
 
 function Launch() {
-    const { ready } = useAuth();
+    const { ready, user } = useAuth();
     const [showing, setShowing] = useState(true);
+    useNotificationLinks(ready && user !== null);
     const done = useCallback(() => setShowing(false), []);
 
     return showing ? <LaunchSplash ready={ready} onDone={done} /> : null;

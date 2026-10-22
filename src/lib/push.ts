@@ -16,10 +16,10 @@ Notifications.setNotificationHandler({
 
 /**
  * Asks for notification permission and registers this phone's Expo push token with the server.
- * Returns false when the rider refused or this is not a real phone.
+ * Returns false when the rider refused or this is an iPhone simulator (Android emulators with Google APIs work).
  */
 export async function registerForPush(): Promise<boolean> {
-    if (!Device.isDevice) {
+    if (!Device.isDevice && Platform.OS === 'ios') {
         return false;
     }
 
