@@ -4,9 +4,11 @@ import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import ContactCard from '@/components/parcel/ContactCard';
+import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import Stepper from '@/components/ui/Stepper';
 import TopBar from '@/components/ui/TopBar';
+import WaitingParcelsList from '@/components/visit/WaitingParcelsList';
 import { useRemote } from '@/hooks/useRemote';
 import { api, ApiError } from '@/lib/api';
 import type { TodayWork } from '@/lib/types';
@@ -22,6 +24,7 @@ export default function MerchantVisit() {
     const { data } = useRemote<TodayWork>('today');
     const stop = data?.pickup_stops.find((candidate) => String(candidate.id) === id);
     const [collected, setCollected] = useState<number | null>(null);
+    const [ticked, setTicked] = useState<number[] | null>(null);
     const [busy, setBusy] = useState(false);
 
     if (!stop) {
@@ -33,12 +36,20 @@ export default function MerchantVisit() {
         );
     }
 
-    const count = collected ?? stop.expected_parcels ?? 0;
+    const waiting = stop.waiting_parcels;
+    const selected = ticked ?? waiting.map((parcel) => parcel.id);
+    const count = collected ?? (waiting.length > 0 ? selected.length : (stop.expected_parcels ?? 0));
+
+    // Ticking follows the count; the rider can still raise it for parcels not in the system yet.
+    const tick = (ids: number[]) => {
+        setTicked(ids);
+        setCollected(ids.length);
+    };
 
     const done = async () => {
         setBusy(true);
         try {
-            await api(`pickup-stops/${stop.id}/complete`, { method: 'POST', body: { collected_parcels: count } });
+            await api(`pickup-stops/${stop.id}/complete`, { method: 'POST', body: { collected_parcels: count, parcel_ids: selected } });
             router.back();
         } catch (exception) {
             Alert.alert(exception instanceof ApiError ? exception.message : String(exception));
@@ -52,7 +63,13 @@ export default function MerchantVisit() {
             <TopBar title={stop.merchant} />
             <ScrollView contentContainerStyle={styles.body}>
                 <ContactCard title={t('collectFrom')} stop={{ contact: stop.contact, phone: stop.phone, alt_phone: null, governorate: stop.governorate, area: stop.area, line: stop.line ?? '', notes: [stop.notes, stop.merchant_notes].filter(Boolean).join('\n') || null, latitude: null, longitude: null }} />
-                <Stepper label={t('collectedParcels')} value={count} onChange={setCollected} max={MAX_PARCELS} />
+                {waiting.length > 0 && <WaitingParcelsList parcels={waiting} selected={selected} onChange={tick} />}
+                <Stepper label={t('collectedParcels')} value={count} onChange={setCollected} max={MAX_PARCELS} min={selected.length} />
+                {waiting.length > 0 && (
+                    <AppText size={13} color={colors.muted}>
+                        {t('raiseCountHint')}
+                    </AppText>
+                )}
             </ScrollView>
             <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
                 <Button label={t('visitDone')} icon="checkmark-circle" onPress={done} busy={busy} haptic testID="visit-done" />

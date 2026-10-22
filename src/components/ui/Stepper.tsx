@@ -8,10 +8,12 @@ interface StepperProps {
     value: number;
     onChange: (value: number) => void;
     max: number;
+    /** Lowest value allowed (default 0). */
+    min?: number;
 }
 
 /** A number picked with big minus / plus buttons. */
-export default function Stepper({ label, value, onChange, max }: StepperProps) {
+export default function Stepper({ label, value, onChange, max, min = 0 }: StepperProps) {
     const button = (icon: 'remove' | 'add', next: number, disabled: boolean) => (
         <Pressable accessibilityRole="button" accessibilityLabel={`${label} ${icon === 'add' ? '+' : '−'}`} disabled={disabled} onPress={() => onChange(next)} style={[styles.button, disabled && styles.disabled]}>
             <Icon name={icon} size={26} color={colors.brandText} />
@@ -23,8 +25,8 @@ export default function Stepper({ label, value, onChange, max }: StepperProps) {
             <AppText weight="bold" size={14}>
                 {label}
             </AppText>
-            <View style={styles.row} accessibilityRole="adjustable" accessibilityValue={{ now: value, min: 0, max }}>
-                {button('remove', value - 1, value <= 0)}
+            <View style={styles.row} accessibilityRole="adjustable" accessibilityValue={{ now: value, min, max }}>
+                {button('remove', value - 1, value <= min)}
                 <AppText weight="extrabold" size={32} style={styles.value} testID="stepper-value">
                     {value}
                 </AppText>

@@ -59,6 +59,15 @@ export interface PickupStop {
     time_window: string;
     expected_parcels: number | null;
     merchant_notes: string | null;
+    /** The merchant's parcels waiting at this pickup; ticked ones become picked up. */
+    waiting_parcels: WaitingParcel[];
+}
+
+export interface WaitingParcel {
+    id: number;
+    tracking_number: string;
+    recipient: string;
+    area: Translated | null;
 }
 
 export interface TodayWork {
