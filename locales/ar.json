@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "باب جت للمندوبين",
+  "NSLocationWhenInUseUsageDescription": "يستخدم تطبيق باب جت موقعك لعرض مسارك والمحطة التالية.",
+  "NSLocationAlwaysAndWhenInUseUsageDescription": "يسجّل تطبيق باب جت مسارك أثناء ورديتك فقط، حتى عندما يكون التطبيق في الخلفية.",
+  "NSCameraUsageDescription": "يستخدم تطبيق باب جت الكاميرا لتصوير الشحنة عند الباب كإثبات للتسليم."
+}

@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "BabJet Rider",
+  "NSLocationWhenInUseUsageDescription": "BabJet Rider uses your location to show your route and the next stop.",
+  "NSLocationAlwaysAndWhenInUseUsageDescription": "BabJet Rider records your route while you are on shift, even when the app is in the background.",
+  "NSCameraUsageDescription": "BabJet Rider uses the camera to photograph a parcel at the door as proof of delivery."
+}
