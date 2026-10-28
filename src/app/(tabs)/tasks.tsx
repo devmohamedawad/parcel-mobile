@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import DaySummary from '@/components/tasks/DaySummary';
 import ParcelTaskCard from '@/components/tasks/ParcelTaskCard';
+import ParcelFinder from '@/components/tasks/ParcelFinder';
 import PickupStopCard from '@/components/tasks/PickupStopCard';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
 import AppText from '@/components/ui/AppText';
@@ -47,7 +48,13 @@ export default function Tasks() {
                 contentContainerStyle={styles.body}
                 stickySectionHeadersEnabled={false}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} tintColor={colors.brand} />}
-                ListHeaderComponent={data ? <DaySummary work={data} /> : undefined}
+                keyboardShouldPersistTaps="handled"
+                ListHeaderComponent={
+                    <>
+                        <ParcelFinder />
+                        {data && <DaySummary work={data} />}
+                    </>
+                }
                 ListEmptyComponent={loading ? undefined : <TasksEmpty failed={error !== null} />}
                 renderSectionHeader={({ section }) => (
                     <AppText weight="extrabold" size={13} color={colors.muted} style={styles.sectionTitle}>

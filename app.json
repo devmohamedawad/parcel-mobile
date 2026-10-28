@@ -72,9 +72,18 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "BabJet Rider uses the camera to photograph a parcel at the door as proof of delivery.",
+          "cameraPermission": "BabJet Rider uses the camera to scan parcel labels and to photograph a parcel at the door as proof of delivery.",
           "photosPermission": false,
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "BabJet Rider uses the camera to scan parcel labels and to photograph a parcel at the door as proof of delivery.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
         }
       ]
     ],

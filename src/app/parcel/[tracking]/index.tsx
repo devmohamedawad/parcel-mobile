@@ -25,7 +25,7 @@ export default function ParcelScreen() {
         return (
             <View style={styles.screen}>
                 <TopBar title={tracking} ltrTitle />
-                {loading ? <ActivityIndicator style={styles.loader} color={colors.brand} /> : <TasksEmpty failed={error !== null} />}
+                {loading ? <ActivityIndicator style={styles.loader} color={colors.brand} /> : <TasksEmpty failed={error !== null} missing={error?.status === 404} />}
             </View>
         );
     }
