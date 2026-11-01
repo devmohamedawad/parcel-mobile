@@ -1,4 +1,4 @@
-import type { LocationObject } from 'expo-location';
+import { type LocationObject, stopLocationUpdatesAsync } from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { enqueue, flush } from '@/tracking/queue';
 
@@ -6,7 +6,8 @@ export const LOCATION_TASK = 'babjet-rider-location';
 
 /**
  * Runs in the background while the shift is open: every position the OS delivers is queued on the phone,
- * then the queue is sent to the server. Must be defined at the top level (imported by the root layout).
+ * then the queue is sent to the server. When the shift was ended elsewhere (the rider web, the branch),
+ * recording stops and its notification goes away. Must be defined at the top level (imported by the root layout).
  */
 TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
     if (error) {
@@ -26,5 +27,7 @@ TaskManager.defineTask(LOCATION_TASK, async ({ data, error }) => {
         })),
     );
 
-    await flush();
+    if (await flush()) {
+        await stopLocationUpdatesAsync(LOCATION_TASK);
+    }
 });

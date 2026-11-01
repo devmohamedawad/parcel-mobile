@@ -3,6 +3,7 @@ import { createContext, type PropsWithChildren, useCallback, useContext, useEffe
 import { api } from '@/lib/api';
 import { deviceLocale, type Locale, type StringKey, translate } from '@/lib/i18n';
 import { clearToken, getToken, setToken } from '@/lib/session';
+import { stopTracking } from '@/tracking/tracking';
 import type { RiderProfile } from '@/lib/types';
 
 interface AuthState {
@@ -50,6 +51,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 setUser(result.user);
             },
             signOut: async () => {
+                // Nobody is tracked once signed out; the queued points are sent while the token still works.
+                await stopTracking().catch(() => undefined);
                 await api('logout', { method: 'POST', locale }).catch(() => undefined);
                 await clearToken();
                 setUser(null);

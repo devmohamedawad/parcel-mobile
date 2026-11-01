@@ -23,11 +23,10 @@ export default function ParcelTaskCard({ parcel, next = false }: { parcel: Parce
                 {next && <Tag label={t('next')} tone="brand" />}
                 {parcel.package_type?.is_fragile && <Tag label={t('fragile')} tone="danger" />}
                 {parcel.package_type?.requires_cold_chain && <Tag label={t('cold')} tone="info" />}
-                <AppText weight="semibold" size={13} color={colors.muted} style={styles.ltr}>
+                <AppText weight="semibold" size={13} color={colors.muted} numberOfLines={1} style={[styles.ltr, styles.tracking]}>
                     {parcel.tracking_number}
                 </AppText>
-                <View style={styles.grow} />
-                <AppText weight="extrabold" size={14} color={collectsCash ? colors.brandDeep : colors.success}>
+                <AppText weight="extrabold" size={14} color={collectsCash ? colors.brandDeep : colors.success} numberOfLines={1} style={styles.price}>
                     {collectsCash ? t('money', { amount: parcel.cod_amount, currency: parcel.currency }) : t('paid')}
                 </AppText>
             </View>
@@ -47,5 +46,7 @@ const styles = StyleSheet.create({
     pressed: { opacity: 0.85 },
     top: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
     ltr: { writingDirection: 'ltr' },
-    grow: { flex: 1 },
+    // The number gives way first so the amount always stays inside the card.
+    tracking: { flexShrink: 1, flexGrow: 1 },
+    price: { flexShrink: 0 },
 });

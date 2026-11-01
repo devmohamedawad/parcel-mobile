@@ -7,6 +7,7 @@ import ContactCard from '@/components/parcel/ContactCard';
 import ParcelFacts from '@/components/parcel/ParcelFacts';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
 import Button from '@/components/ui/Button';
+import FadeIn from '@/components/ui/FadeIn';
 import TopBar from '@/components/ui/TopBar';
 import { useParcelUpdate } from '@/hooks/useParcelUpdate';
 import { useRemote } from '@/hooks/useRemote';
@@ -47,9 +48,17 @@ export default function ParcelScreen() {
             {position ? <StopMap stop={position} style={styles.map} /> : null}
             <TopBar title={parcel.tracking_number} floating={position !== null} ltrTitle />
             <ScrollView style={position ? styles.sheet : undefined} contentContainerStyle={styles.body} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} />}>
-                <ContactCard title={collecting ? t('collectFrom') : t('recipient')} stop={stop} />
-                {position && <Button label={t('navigate')} icon="navigate" variant="secondary" size="md" onPress={() => navigateTo(position)} />}
-                <ParcelFacts parcel={parcel} />
+                <FadeIn>
+                    <ContactCard title={collecting ? t('collectFrom') : t('recipient')} stop={stop} />
+                </FadeIn>
+                {position && (
+                    <FadeIn index={1}>
+                        <Button label={t('navigate')} icon="navigate" variant="secondary" size="md" onPress={() => navigateTo(position)} />
+                    </FadeIn>
+                )}
+                <FadeIn index={2}>
+                    <ParcelFacts parcel={parcel} />
+                </FadeIn>
             </ScrollView>
             <ActionBar parcel={parcel} busy={busy} onStep={step} />
         </View>

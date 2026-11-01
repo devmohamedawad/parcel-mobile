@@ -54,9 +54,11 @@ export function queuedCount(): number {
 /**
  * Sends the queued points in batches; stops at the first network error and tries again next time.
  * Points refused because no shift is open are dropped (the shift was ended elsewhere).
+ * Resolves true when the server said no shift is open.
  */
-export async function flush(): Promise<void> {
+export async function flush(): Promise<boolean> {
     let queue = read();
+    let shiftClosed = false;
 
     while (queue.length > 0) {
         const batch = queue.slice(0, BATCH_SIZE);
@@ -67,11 +69,15 @@ export async function flush(): Promise<void> {
             const dropped = error instanceof ApiError && (error.status === 409 || error.status === 422);
 
             if (!dropped) {
-                return;
+                return false;
             }
+
+            shiftClosed ||= error.status === 409;
         }
 
         queue = queue.slice(batch.length);
         write(queue);
     }
+
+    return shiftClosed;
 }

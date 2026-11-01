@@ -7,6 +7,7 @@ import ParcelFinder from '@/components/tasks/ParcelFinder';
 import PickupStopCard from '@/components/tasks/PickupStopCard';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
 import AppText from '@/components/ui/AppText';
+import FadeIn from '@/components/ui/FadeIn';
 import { useRemote } from '@/hooks/useRemote';
 import { formatDay } from '@/lib/format';
 import type { StringKey } from '@/lib/i18n';
@@ -61,7 +62,7 @@ export default function Tasks() {
                         {t(section.title)} · {section.data.length}
                     </AppText>
                 )}
-                renderItem={({ item }) => (item.kind === 'stop' ? <PickupStopCard stop={item.stop} /> : <ParcelTaskCard parcel={item.parcel} next={item.next} />)}
+                renderItem={({ item, index }) => <FadeIn index={index}>{item.kind === 'stop' ? <PickupStopCard stop={item.stop} /> : <ParcelTaskCard parcel={item.parcel} next={item.next} />}</FadeIn>}
                 ItemSeparatorComponent={() => <View style={styles.gap} />}
             />
         </SafeAreaView>

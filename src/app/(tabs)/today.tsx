@@ -7,6 +7,7 @@ import NextStopCard from '@/components/today/NextStopCard';
 import OffShiftCard from '@/components/today/OffShiftCard';
 import OnShiftCard from '@/components/today/OnShiftCard';
 import TodayHeader from '@/components/today/TodayHeader';
+import FadeIn from '@/components/ui/FadeIn';
 import { useRemote } from '@/hooks/useRemote';
 import { registerForPush } from '@/lib/push';
 import type { TodayWork } from '@/lib/types';
@@ -26,17 +27,33 @@ export default function Today() {
     return (
         <SafeAreaView edges={['top']} style={styles.screen}>
             <ScrollView contentContainerStyle={styles.body} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} />}>
-                <TodayHeader online={shift !== null} />
+                <FadeIn>
+                    <TodayHeader online={shift !== null} />
+                </FadeIn>
                 {shift ? (
                     <>
-                        <OnShiftCard shift={shift} tracking={tracking} waiting={waiting} busy={busy} onEnd={end} progress={work ? { done: finished, total: finished + work.deliveries.length } : undefined} />
-                        {next && <NextStopCard parcel={next} />}
-                        <MapPreviewCard />
+                        <FadeIn key="on-shift" index={1}>
+                            <OnShiftCard shift={shift} tracking={tracking} waiting={waiting} busy={busy} onEnd={end} progress={work ? { done: finished, total: finished + work.deliveries.length } : undefined} />
+                        </FadeIn>
+                        {next && (
+                            <FadeIn index={2}>
+                                <NextStopCard parcel={next} />
+                            </FadeIn>
+                        )}
+                        <FadeIn index={3}>
+                            <MapPreviewCard />
+                        </FadeIn>
                     </>
                 ) : (
                     <>
-                        <OffShiftCard busy={busy} needsPermission={needsPermission} onStart={start} onOpenSettings={openSettings} />
-                        {lastShift && <LastShiftCard shift={lastShift} />}
+                        <FadeIn key="off-shift" index={1}>
+                            <OffShiftCard busy={busy} needsPermission={needsPermission} onStart={start} onOpenSettings={openSettings} />
+                        </FadeIn>
+                        {lastShift && (
+                            <FadeIn index={2}>
+                                <LastShiftCard shift={lastShift} />
+                            </FadeIn>
+                        )}
                     </>
                 )}
             </ScrollView>

@@ -24,12 +24,17 @@ export function useShift() {
         setWaiting(queuedCount());
     }, [shift?.id]);
 
-    // An open shift on the server keeps the phone recording (e.g. after the app was restarted).
+    // The phone records exactly while the server has a shift open: it starts again after the app was
+    // restarted, and stops (removing the tracking notification) when the shift was ended elsewhere.
     useEffect(() => {
         if (shift && !tracking) {
             startTracking({ title: t('notificationTitle'), body: t('notificationBody') }).then(() => setTracking(true)).catch(() => undefined);
         }
-    }, [shift, tracking, t]);
+
+        if (!shift && tracking && !busy) {
+            stopTracking().then(() => setTracking(false)).catch(() => undefined);
+        }
+    }, [shift, tracking, busy, t]);
 
     const start = useCallback(async () => {
         setBusy(true);
