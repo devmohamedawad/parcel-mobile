@@ -6,6 +6,7 @@ import LastShiftCard from '@/components/today/LastShiftCard';
 import NextStopCard from '@/components/today/NextStopCard';
 import OffShiftCard from '@/components/today/OffShiftCard';
 import OnShiftCard from '@/components/today/OnShiftCard';
+import ParcelFinder from '@/components/tasks/ParcelFinder';
 import TodayHeader from '@/components/today/TodayHeader';
 import FadeIn from '@/components/ui/FadeIn';
 import { useRemote } from '@/hooks/useRemote';
@@ -30,27 +31,30 @@ export default function Today() {
                 <FadeIn>
                     <TodayHeader online={shift !== null} />
                 </FadeIn>
+                <FadeIn index={1}>
+                    <ParcelFinder />
+                </FadeIn>
                 {shift ? (
                     <>
-                        <FadeIn key="on-shift" index={1}>
+                        <FadeIn key="on-shift" index={2}>
                             <OnShiftCard shift={shift} tracking={tracking} waiting={waiting} busy={busy} onEnd={end} progress={work ? { done: finished, total: finished + work.deliveries.length } : undefined} />
                         </FadeIn>
                         {next && (
-                            <FadeIn index={2}>
+                            <FadeIn index={3}>
                                 <NextStopCard parcel={next} />
                             </FadeIn>
                         )}
-                        <FadeIn index={3}>
+                        <FadeIn index={4}>
                             <MapPreviewCard />
                         </FadeIn>
                     </>
                 ) : (
                     <>
-                        <FadeIn key="off-shift" index={1}>
+                        <FadeIn key="off-shift" index={2}>
                             <OffShiftCard busy={busy} needsPermission={needsPermission} onStart={start} onOpenSettings={openSettings} />
                         </FadeIn>
                         {lastShift && (
-                            <FadeIn index={2}>
+                            <FadeIn index={3}>
                                 <LastShiftCard shift={lastShift} />
                             </FadeIn>
                         )}
