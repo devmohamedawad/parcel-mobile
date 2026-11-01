@@ -55,7 +55,7 @@ export default function TextField({ label, icon, secret = false, showLabel, hide
 const styles = StyleSheet.create({
     wrap: { gap: 8 },
     box: { flexDirection: 'row', alignItems: 'center', gap: 10, height: 56, paddingHorizontal: 16, borderWidth: 1.5, borderColor: colors.line, borderRadius: radius.md, backgroundColor: colors.field },
-    focused: { borderColor: colors.brand, backgroundColor: colors.surface, shadowColor: colors.brand, shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+    focused: { borderColor: colors.brand, backgroundColor: colors.surface },
     input: { flex: 1, fontFamily: fonts.medium, fontSize: 16, color: colors.ink, paddingVertical: 0 },
     ltr: { writingDirection: 'ltr' },
     eye: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginEnd: -10 },

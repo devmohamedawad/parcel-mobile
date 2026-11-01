@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import AppText from '@/components/ui/AppText';
@@ -30,7 +30,7 @@ export default function FailDelivery() {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.screen} behavior="padding">
             <TopBar title={t('failTitle')} />
             <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
                 <AppText weight="extrabold" size={15}>

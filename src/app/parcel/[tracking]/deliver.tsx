@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import DeliveryCodeField from '@/components/delivery/DeliveryCodeField';
@@ -59,7 +59,7 @@ export default function ConfirmDelivery() {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.screen} behavior="padding">
             <TopBar title={t('deliverTitle')} />
             <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
                 {collectsCash && (
