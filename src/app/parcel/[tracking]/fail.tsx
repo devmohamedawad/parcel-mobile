@@ -22,6 +22,8 @@ export default function FailDelivery() {
     const { send, busy, errors } = useParcelUpdate(tracking);
     const [reason, setReason] = useState<string | null>(null);
     const [note, setNote] = useState('');
+    // "Other" says nothing on its own, so the rider writes what happened.
+    const needsNote = reason === 'other';
 
     const save = async () => {
         if (await send({ action: 'failed', reason: reason ?? undefined, note: note.trim() || undefined })) {
@@ -38,11 +40,11 @@ export default function FailDelivery() {
                 </AppText>
                 <ChoiceList options={parcel?.failure_reasons ?? []} value={reason} onChange={setReason} />
                 <FieldError message={errors.reason} />
-                <TextField label={t('noteLabel')} icon="create-outline" value={note} onChangeText={setNote} maxLength={500} multiline />
+                <TextField label={needsNote ? t('noteOtherLabel') : t('noteLabel')} icon="create-outline" value={note} onChangeText={setNote} maxLength={500} multiline />
                 <FieldError message={errors.note} />
             </ScrollView>
             <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
-                <Button label={t('save')} onPress={save} busy={busy} disabled={reason === null} haptic testID="fail-save" />
+                <Button label={t('save')} onPress={save} busy={busy} disabled={reason === null || (needsNote && note.trim() === '')} haptic testID="fail-save" />
             </View>
         </KeyboardAvoidingView>
     );

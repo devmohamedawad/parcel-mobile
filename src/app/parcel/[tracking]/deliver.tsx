@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import DeliveryCodeField from '@/components/delivery/DeliveryCodeField';
 import PhotoField from '@/components/delivery/PhotoField';
-import SignaturePad, { type SignaturePadHandle } from '@/components/delivery/SignaturePad';
+import SignatureField, { type SignatureFieldHandle } from '@/components/delivery/SignatureField';
 import Button from '@/components/ui/Button';
 import FieldError from '@/components/ui/FieldError';
 import TextField from '@/components/ui/TextField';
@@ -21,7 +21,7 @@ export default function ConfirmDelivery() {
     const insets = useSafeAreaInsets();
     const { data: parcel } = useRemote<ParcelDetail>(`parcels/${tracking}`);
     const { send, busy, errors } = useParcelUpdate(tracking);
-    const signature = useRef<SignaturePadHandle>(null);
+    const signature = useRef<SignatureFieldHandle>(null);
     const [cash, setCash] = useState('');
     const [code, setCode] = useState('');
     const [receivedBy, setReceivedBy] = useState('');
@@ -71,7 +71,7 @@ export default function ConfirmDelivery() {
                 {parcel.proof.code && <DeliveryCodeField tracking={tracking} value={code} onChange={setCode} canResend={parcel.proof.can_resend_code} error={errors.delivery_code} />}
                 <PhotoField photo={photo} required={parcel.proof.photo} onChange={setPhoto} />
                 <FieldError message={errors.photo} />
-                <SignaturePad ref={signature} label={t('signatureLabel')} />
+                <SignatureField ref={signature} label={t('signatureLabel')} />
                 <View style={styles.field}>
                     <TextField label={t('receivedBy')} icon="person-outline" value={receivedBy} onChangeText={setReceivedBy} maxLength={100} />
                     <FieldError message={errors.received_by} />
