@@ -5,6 +5,7 @@ import StopMap from '@/components/map/StopMap';
 import ActionBar from '@/components/parcel/ActionBar';
 import ContactCard from '@/components/parcel/ContactCard';
 import ParcelFacts from '@/components/parcel/ParcelFacts';
+import ScanBanner from '@/components/parcel/ScanBanner';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
 import Button from '@/components/ui/Button';
 import FadeIn from '@/components/ui/FadeIn';
@@ -17,8 +18,8 @@ import type { ParcelAction, ParcelDetail } from '@/lib/types';
 import { colors } from '@/theme';
 
 export default function ParcelScreen() {
-    const { tracking } = useLocalSearchParams<{ tracking: string }>();
-    const { t } = useAuth();
+    const { tracking, scanned } = useLocalSearchParams<{ tracking: string; scanned?: ParcelAction }>();
+    const { t, user } = useAuth();
     const { data: parcel, error, loading, refreshing, refresh } = useRemote<ParcelDetail>(`parcels/${tracking}`);
     const { send, busy } = useParcelUpdate(tracking);
 
@@ -35,6 +36,7 @@ export default function ParcelScreen() {
     const collecting = parcel.status === 'pickup_assigned';
     const stop = collecting ? parcel.pickup : parcel.delivery;
     const position = lngLat(stop);
+    const warehouse = parcel.actions.includes('to_hub') ? user?.rider.warehouse : null;
 
     const step = async (action: ParcelAction) => {
         const updated = await send({ action });
@@ -48,12 +50,22 @@ export default function ParcelScreen() {
             {position ? <StopMap stop={position} style={styles.map} /> : null}
             <TopBar title={parcel.tracking_number} floating={position !== null} ltrTitle />
             <ScrollView style={position ? styles.sheet : undefined} contentContainerStyle={styles.body} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} />}>
+                {scanned && (
+                    <FadeIn>
+                        <ScanBanner action={scanned} />
+                    </FadeIn>
+                )}
                 <FadeIn>
                     <ContactCard title={collecting ? t('collectFrom') : t('recipient')} stop={stop} />
                 </FadeIn>
                 {position && (
                     <FadeIn index={1}>
                         <Button label={t('navigate')} icon="navigate" variant="secondary" size="md" onPress={() => navigateTo(position)} />
+                    </FadeIn>
+                )}
+                {warehouse && (
+                    <FadeIn index={1}>
+                        <Button label={t('warehouseDirections')} icon="business" variant="outline" size="md" onPress={() => navigateTo([warehouse.longitude, warehouse.latitude])} testID="warehouse-directions" />
                     </FadeIn>
                 )}
                 <FadeIn index={2}>

@@ -11,14 +11,15 @@ export interface RiderProfile {
     name: string;
     email: string;
     locale: 'ar' | 'en' | null;
-    rider: { code: string; branch: string | null };
+    /** warehouse: where the branch warehouse is, for directions when the rider brings parcels back. */
+    rider: { code: string; branch: string | null; warehouse: { latitude: number; longitude: number } | null };
     shift: RiderShift | null;
 }
 
 /** A name in each language, e.g. `{ ar: 'السالمية', en: 'Salmiya' }`. */
 export type Translated = Record<string, string>;
 
-export type ParcelAction = 'picked_up' | 'out_for_delivery' | 'delivered' | 'failed' | 'returned';
+export type ParcelAction = 'picked_up' | 'out_for_delivery' | 'to_hub' | 'delivered' | 'failed' | 'returned';
 
 export interface PackageTypeSummary {
     code: string;
@@ -125,5 +126,7 @@ export interface ParcelDetail {
     proof: { code: boolean; can_resend_code: boolean; code_sent_at: string | null; photo: boolean };
     items: { name: string; quantity: number }[];
     actions: ParcelAction[];
+    /** The step recorded as soon as the rider scans this label (collected, taken out of the warehouse), or null when the rider has to choose. */
+    scan_action: ParcelAction | null;
     failure_reasons: { value: string; label: string }[];
 }

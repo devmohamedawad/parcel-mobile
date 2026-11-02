@@ -9,7 +9,7 @@ import { colors } from '@/theme';
 interface ActionBarProps {
     parcel: ParcelDetail;
     busy: boolean;
-    /** A one-tap step (collected, out for delivery, returned) after the rider confirms. */
+    /** A one-tap step (collected, out for delivery, left at the warehouse, returned) after the rider confirms. */
     onStep: (action: ParcelAction) => void;
 }
 
@@ -47,7 +47,16 @@ export default function ActionBar({ parcel, busy, onStep }: ActionBarProps) {
                 .filter((action) => action !== 'delivered' && action !== 'failed')
                 .map((action) => (
                     <View key={action} style={styles.wide}>
-                        <Button label={t(`action_${action}`)} icon="checkmark-circle" size="md" busy={busy} haptic onPress={() => confirmStep(action)} testID={`action-${action}`} />
+                        <Button
+                            label={t(`action_${action}`)}
+                            icon={action === 'to_hub' ? 'business' : 'checkmark-circle'}
+                            variant={action === 'to_hub' ? 'secondary' : 'primary'}
+                            size="md"
+                            busy={busy}
+                            haptic
+                            onPress={() => confirmStep(action)}
+                            testID={`action-${action}`}
+                        />
                     </View>
                 ))}
         </View>
