@@ -79,6 +79,19 @@ export interface TodayWork {
     route_url: string | null;
     done_today: { delivered: number; failed: number };
     cash: { on_hand: string; limit: string | null; reached: boolean; currency: string };
+    unread_notifications: number;
+}
+
+/** A notification the rider was sent (new parcel, merchant visit), kept so a missed push can be read later. */
+export interface AppNotification {
+    id: string;
+    title: string;
+    body: string;
+    /** The server's web path it points to ("/rider/parcels/PK…" or "/rider"). */
+    url: string | null;
+    tracking_number: string | null;
+    read: boolean;
+    created_at: string;
 }
 
 export interface Stop {

@@ -9,6 +9,11 @@ export function formatTime(locale: Locale, iso: string): string {
     return new Date(iso).toLocaleTimeString(intlLocale(locale), { hour: 'numeric', minute: '2-digit' });
 }
 
+/** "Mon 2 Nov, 10:45" */
+export function formatDateTime(locale: Locale, iso: string): string {
+    return new Date(iso).toLocaleString(intlLocale(locale), { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+}
+
 export function formatDay(locale: Locale, date: Date = new Date()): string {
     return date.toLocaleDateString(intlLocale(locale), { weekday: 'long', day: 'numeric', month: 'long' });
 }

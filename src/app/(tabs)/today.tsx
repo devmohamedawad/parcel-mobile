@@ -29,7 +29,7 @@ export default function Today() {
         <SafeAreaView edges={['top']} style={styles.screen}>
             <ScrollView contentContainerStyle={styles.body} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} />}>
                 <FadeIn>
-                    <TodayHeader online={shift !== null} />
+                    <TodayHeader online={shift !== null} unreadNotifications={work?.unread_notifications ?? 0} />
                 </FadeIn>
                 <FadeIn index={1}>
                     <ParcelFinder />

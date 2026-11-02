@@ -1,13 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
+import NotificationsButton from '@/components/notifications/NotificationsButton';
 import AppText from '@/components/ui/AppText';
 import Avatar from '@/components/ui/Avatar';
 import Pill from '@/components/ui/Pill';
 import { formatDay } from '@/lib/format';
 import { colors, radius } from '@/theme';
 
-/** Greeting, online state and the rider's code / branch / date. */
-export default function TodayHeader({ online }: { online: boolean }) {
+/** Greeting, online state, the notifications button and the rider's code / branch / date. */
+export default function TodayHeader({ online, unreadNotifications }: { online: boolean; unreadNotifications: number }) {
     const { user, t, locale } = useAuth();
 
     if (!user) {
@@ -30,6 +31,7 @@ export default function TodayHeader({ online }: { online: boolean }) {
                     </AppText>
                 </View>
                 <Pill label={online ? t('online') : t('offline')} tone={online ? 'success' : 'neutral'} dot />
+                <NotificationsButton unread={unreadNotifications} />
             </View>
             <View style={styles.chips}>
                 {chips.map((chip) => (

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import RiderMap from '@/components/map/RiderMap';
 import RouteStops from '@/components/map/RouteStops';
+import UnlocatedStops from '@/components/map/UnlocatedStops';
 import AppText from '@/components/ui/AppText';
 import Icon from '@/components/ui/Icon';
 import { useRemote } from '@/hooks/useRemote';
@@ -17,9 +18,10 @@ export default function MapScreen() {
     const [follow, setFollow] = useState(true);
     const { data: work } = useRemote<TodayWork>('today');
     const deliveries = work?.deliveries ?? [];
-    const located = deliveries.filter((parcel) => lngLat(parcel) !== null).length;
+    const unlocated = deliveries.filter((parcel) => lngLat(parcel) === null);
+    const located = deliveries.length - unlocated.length;
     const onShift = Boolean(user?.shift);
-    const subtitle = deliveries.length > 0 ? (located > 0 ? t('stopsCount', { count: located }) : t('noTasksOnMap')) : onShift ? t('trackingOn') : t('mapOffShift');
+    const subtitle = deliveries.length > 0 ? (located === 0 ? t('noTasksOnMap') : unlocated.length > 0 ? t('stopsOnMap', { count: located, total: deliveries.length }) : t('stopsCount', { count: located })) : onShift ? t('trackingOn') : t('mapOffShift');
 
     return (
         <View style={styles.screen}>
@@ -40,6 +42,8 @@ export default function MapScreen() {
                     </View>
                 </View>
             </View>
+
+            <UnlocatedStops parcels={unlocated} />
 
             {!follow && (
                 <Pressable accessibilityRole="button" accessibilityLabel={t('myLocation')} onPress={() => setFollow(true)} style={styles.recenter}>
