@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/AuthContext';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import type { UploadFile } from '@/hooks/useParcelUpdate';
+import { compressPhoto } from '@/lib/compressPhoto';
 import { colors, radius } from '@/theme';
 
 interface PhotoFieldProps {
@@ -23,10 +24,11 @@ export default function PhotoField({ photo, required, onChange }: PhotoFieldProp
             Alert.alert(t('cameraDenied'));
             return;
         }
-        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.6, exif: false });
+        // Full quality from the camera: compressPhoto encodes it once, so it is not compressed twice.
+        const result = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1, exif: false });
         const asset = result.canceled ? null : result.assets[0];
         if (asset) {
-            onChange({ uri: asset.uri, name: asset.fileName ?? 'photo.jpg', type: asset.mimeType ?? 'image/jpeg' });
+            onChange((await compressPhoto(asset)) ?? { uri: asset.uri, name: asset.fileName ?? 'photo.jpg', type: asset.mimeType ?? 'image/jpeg' });
         }
     };
 
