@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
@@ -33,8 +34,8 @@ export function useParcelUpdate(tracking: string) {
                 if (attachments.length > 0) {
                     const form = new FormData();
                     Object.entries(values).forEach(([key, value]) => value !== undefined && form.append(key, String(value)));
-                    // React Native uploads a local file from { uri, name, type }.
-                    attachments.forEach(([key, file]) => form.append(key, file as unknown as Blob));
+                    // Expo's fetch sends file parts that can give their bytes (expo-file-system File), not React Native's { uri, name, type }.
+                    attachments.forEach(([key, file]) => form.append(key, new File(file.uri) as unknown as Blob));
                     body = form;
                 }
 

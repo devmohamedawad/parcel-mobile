@@ -40,7 +40,10 @@ export async function api<T>(path: string, { method = 'GET', body, locale = devi
             },
             body: body === undefined ? undefined : multipart ? body : JSON.stringify(body),
         });
-    } catch {
+    } catch (error) {
+        if (__DEV__) {
+            console.warn(`API ${method} ${path} failed before an answer:`, error);
+        }
         throw new ApiError(0, 'network', 'No connection to the server.');
     }
 
