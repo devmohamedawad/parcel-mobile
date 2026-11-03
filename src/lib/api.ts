@@ -1,5 +1,5 @@
-import { API_URL } from '@/config';
 import { deviceLocale } from '@/lib/i18n';
+import { getServerUrl } from '@/lib/server';
 import { getToken } from '@/lib/session';
 
 /** An error answered by the Parcel API: `{"error": {"code", "message", "fields"?}}`. */
@@ -24,13 +24,13 @@ interface RequestOptions {
  * Calls the rider app API (`/api/rider/v1/...`) with the saved token and returns `data`.
  */
 export async function api<T>(path: string, { method = 'GET', body, locale = deviceLocale() }: RequestOptions = {}): Promise<T> {
-    const token = await getToken();
+    const [token, server] = await Promise.all([getToken(), getServerUrl()]);
     // FormData (photo / signature uploads) sets its own multipart content type.
     const multipart = body instanceof FormData;
     let response: Response;
 
     try {
-        response = await fetch(`${API_URL}/api/rider/v1/${path.replace(/^\//, '')}`, {
+        response = await fetch(`${server}/api/rider/v1/${path.replace(/^\//, '')}`, {
             method,
             headers: {
                 Accept: 'application/json',

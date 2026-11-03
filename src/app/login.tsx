@@ -3,11 +3,13 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
+import ServerDialog from '@/components/login/ServerDialog';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
+import Icon from '@/components/ui/Icon';
 import TextField from '@/components/ui/TextField';
 import { ApiError } from '@/lib/api';
 import { colors, radius } from '@/theme';
@@ -19,6 +21,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [serverOpen, setServerOpen] = useState(false);
 
     const submit = async () => {
         setBusy(true);
@@ -42,6 +45,9 @@ export default function Login() {
             <StatusBar style="light" />
             <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" bounces={false}>
                 <View style={[styles.hero, { paddingTop: insets.top + 40 }]}>
+                    <Pressable accessibilityRole="button" accessibilityLabel={t('serverTitle')} onPress={() => setServerOpen(true)} hitSlop={10} style={[styles.gear, { top: insets.top + 12 }]} testID="server-open">
+                        <Icon name="settings-outline" size={24} color="#FFFFFF" />
+                    </Pressable>
                     <View style={styles.logoTile}>
                         <Image source={require('../../assets/brand-icon.webp')} style={styles.logo} contentFit="contain" accessibilityLabel="BabJet" />
                     </View>
@@ -81,6 +87,7 @@ export default function Login() {
                     </AppText>
                 </View>
             </ScrollView>
+            {serverOpen && <ServerDialog onClose={() => setServerOpen(false)} />}
         </KeyboardAvoidingView>
     );
 }
@@ -88,6 +95,7 @@ export default function Login() {
 const styles = StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.brand },
     scroll: { flexGrow: 1 },
+    gear: { position: 'absolute', end: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     hero: { alignItems: 'center', gap: 6, paddingHorizontal: 24, paddingBottom: 36 },
     logoTile: { width: 84, height: 84, borderRadius: 24, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', marginBottom: 8, shadowColor: '#78280A', shadowOpacity: 0.25, shadowRadius: 30, shadowOffset: { width: 0, height: 10 }, elevation: 8 },
     logo: { width: 64, height: 64 },

@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
@@ -10,11 +11,17 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Pill from '@/components/ui/Pill';
 import { usePermissionStatus } from '@/hooks/usePermissionStatus';
+import { getServerUrl } from '@/lib/server';
 import { colors } from '@/theme';
 
 export default function Account() {
     const { user, t, signOut } = useAuth();
     const permissions = usePermissionStatus();
+    const [server, setServer] = useState('');
+
+    useEffect(() => {
+        getServerUrl().then(setServer);
+    }, []);
 
     if (!user) {
         return null;
@@ -59,6 +66,7 @@ export default function Account() {
                     rows={[
                         { label: t('riderCode'), value: user.rider.code },
                         { label: t('branchLabel'), value: user.rider.branch ?? '—' },
+                        { label: t('serverLabel'), value: server.replace(/^https?:\/\//, '') },
                     ]}
                 />
 
