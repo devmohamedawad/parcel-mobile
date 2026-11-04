@@ -4,11 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import RiderMap from '@/components/map/RiderMap';
 import RouteStops from '@/components/map/RouteStops';
+import StopDetailsCard from '@/components/map/StopDetailsCard';
 import UnlocatedStops from '@/components/map/UnlocatedStops';
 import AppText from '@/components/ui/AppText';
 import Icon from '@/components/ui/Icon';
 import { useRemote } from '@/hooks/useRemote';
-import { lngLat } from '@/lib/stops';
+import { lngLat, routeStops } from '@/lib/stops';
 import type { TodayWork } from '@/lib/types';
 import { colors, radius, shadow } from '@/theme';
 
@@ -21,12 +22,15 @@ export default function MapScreen() {
     const unlocated = deliveries.filter((parcel) => lngLat(parcel) === null);
     const located = deliveries.length - unlocated.length;
     const onShift = Boolean(user?.shift);
+    const stops = routeStops(deliveries);
+    const [selected, setSelected] = useState<string | null>(null);
+    const open = stops.find((stop) => stop.parcel.tracking_number === selected);
     const subtitle = deliveries.length > 0 ? (located === 0 ? t('noTasksOnMap') : unlocated.length > 0 ? t('stopsOnMap', { count: located, total: deliveries.length }) : t('stopsCount', { count: located })) : onShift ? t('trackingOn') : t('mapOffShift');
 
     return (
         <View style={styles.screen}>
             <RiderMap style={StyleSheet.absoluteFill} follow={follow} onFollowChange={setFollow}>
-                <RouteStops deliveries={deliveries} />
+                <RouteStops stops={stops} selected={open ? selected : null} onSelect={setSelected} />
             </RiderMap>
 
             <View style={[styles.top, { top: insets.top + 12 }]}>
@@ -43,13 +47,15 @@ export default function MapScreen() {
                 </View>
             </View>
 
-            <UnlocatedStops parcels={unlocated} />
+            {!open && <UnlocatedStops parcels={unlocated} />}
 
             {!follow && (
-                <Pressable accessibilityRole="button" accessibilityLabel={t('myLocation')} onPress={() => setFollow(true)} style={styles.recenter}>
+                <Pressable accessibilityRole="button" accessibilityLabel={t('myLocation')} onPress={() => setFollow(true)} style={[styles.recenter, open && styles.recenterAbove]}>
                     <Icon name="locate" size={24} color={colors.info} />
                 </Pressable>
             )}
+
+            {open && <StopDetailsCard parcel={open.parcel} number={open.number} onClose={() => setSelected(null)} />}
         </View>
     );
 }
@@ -59,5 +65,7 @@ const styles = StyleSheet.create({
     top: { position: 'absolute', start: 16, end: 16 },
     title: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingHorizontal: 14, borderRadius: radius.md, backgroundColor: colors.surface, ...shadow.float },
     titleText: { flex: 1 },
+    // Above the stop card while it is open.
+    recenterAbove: { bottom: 230 },
     recenter: { position: 'absolute', bottom: 24, end: 16, width: 52, height: 52, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', ...shadow.float },
 });

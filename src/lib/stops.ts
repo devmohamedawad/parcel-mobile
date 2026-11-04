@@ -28,3 +28,19 @@ export function lngLat(stop: Pick<Stop, 'latitude' | 'longitude'>): [number, num
 export function openParcels(work: TodayWork): ParcelCard[] {
     return [...work.pickups, ...work.in_hand, ...work.deliveries, ...work.returns];
 }
+
+/** A delivery placed on the map, numbered in route order (1 = next). */
+export interface RouteStop {
+    parcel: ParcelCard;
+    position: [number, number];
+    number: number;
+}
+
+/** The deliveries that have a map place, keeping their route number. */
+export function routeStops(deliveries: ParcelCard[]): RouteStop[] {
+    return deliveries.flatMap((parcel, index) => {
+        const position = lngLat(parcel);
+
+        return position ? [{ parcel, position, number: index + 1 }] : [];
+    });
+}
