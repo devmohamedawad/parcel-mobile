@@ -1,9 +1,9 @@
 import { File } from 'expo-file-system';
 import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
 import { api, ApiError } from '@/lib/api';
 import { currentPosition } from '@/lib/position';
+import { alertWorkError } from '@/lib/workAlert';
 import type { ParcelDetail } from '@/lib/types';
 
 type Fields = Record<string, string | number | undefined>;
@@ -44,7 +44,7 @@ export function useParcelUpdate(tracking: string) {
                 if (exception instanceof ApiError && Object.keys(exception.fields).length > 0) {
                     setErrors(Object.fromEntries(Object.entries(exception.fields).map(([field, messages]) => [field, messages[0] ?? ''])));
                 } else {
-                    Alert.alert(exception instanceof ApiError && exception.code === 'network' ? t('noConnection') : exception instanceof Error ? exception.message : String(exception));
+                    alertWorkError(exception, t);
                 }
 
                 return null;

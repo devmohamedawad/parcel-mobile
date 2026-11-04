@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import ContactCard from '@/components/parcel/ContactCard';
@@ -10,7 +10,8 @@ import Stepper from '@/components/ui/Stepper';
 import TopBar from '@/components/ui/TopBar';
 import WaitingParcelsList from '@/components/visit/WaitingParcelsList';
 import { useRemote } from '@/hooks/useRemote';
-import { api, ApiError } from '@/lib/api';
+import { api } from '@/lib/api';
+import { alertWorkError } from '@/lib/workAlert';
 import type { TodayWork } from '@/lib/types';
 import { colors } from '@/theme';
 
@@ -52,7 +53,7 @@ export default function MerchantVisit() {
             await api(`pickup-stops/${stop.id}/complete`, { method: 'POST', body: { collected_parcels: count, parcel_ids: selected } });
             router.back();
         } catch (exception) {
-            Alert.alert(exception instanceof ApiError ? exception.message : String(exception));
+            alertWorkError(exception, t);
         } finally {
             setBusy(false);
         }
