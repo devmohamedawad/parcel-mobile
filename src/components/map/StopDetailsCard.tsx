@@ -48,6 +48,11 @@ export default function StopDetailsCard({ parcel, number, onClose }: StopDetails
                     <Icon name="close" size={22} color={colors.muted} />
                 </Pressable>
             </View>
+            {parcel.approximate && (
+                <AppText size={13} color={colors.muted} testID="stop-approximate">
+                    {t('approximatePlace')}
+                </AppText>
+            )}
             <AppText weight="bold" size={14} color={collectsCash ? colors.brandDeep : colors.successText}>
                 {collectsCash ? t('money', { amount: parcel.cod_amount, currency: parcel.currency }) : t('paid')}
             </AppText>

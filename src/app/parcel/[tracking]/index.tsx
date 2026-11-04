@@ -5,8 +5,10 @@ import StopMap from '@/components/map/StopMap';
 import ActionBar from '@/components/parcel/ActionBar';
 import ContactCard from '@/components/parcel/ContactCard';
 import ParcelFacts from '@/components/parcel/ParcelFacts';
+import SaveDoorLocationButton from '@/components/parcel/SaveDoorLocationButton';
 import ScanBanner from '@/components/parcel/ScanBanner';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
+import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import FadeIn from '@/components/ui/FadeIn';
 import TopBar from '@/components/ui/TopBar';
@@ -37,6 +39,8 @@ export default function ParcelScreen() {
     const stop = collecting ? parcel.pickup : parcel.delivery;
     const position = lngLat(stop);
     const warehouse = parcel.actions.includes('to_hub') ? user?.rider.warehouse : null;
+    // At the door (on the road, or after a failed try): the rider may save where the recipient is.
+    const atDoor = !collecting && ['out_for_delivery', 'delivery_failed'].includes(parcel.status);
 
     const step = async (action: ParcelAction) => {
         const updated = await send({ action });
@@ -47,7 +51,7 @@ export default function ParcelScreen() {
 
     return (
         <View style={styles.screen}>
-            {position ? <StopMap stop={position} style={styles.map} /> : null}
+            {position ? <StopMap stop={position} approximate={stop.approximate} style={styles.map} /> : null}
             <TopBar title={parcel.tracking_number} floating={position !== null} ltrTitle />
             <ScrollView style={position ? styles.sheet : undefined} contentContainerStyle={styles.body} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} />}>
                 {scanned && (
@@ -58,9 +62,19 @@ export default function ParcelScreen() {
                 <FadeIn>
                     <ContactCard title={collecting ? t('collectFrom') : t('recipient')} stop={stop} />
                 </FadeIn>
+                {stop.approximate && (
+                    <AppText size={13} color={colors.muted} testID="parcel-approximate">
+                        {t('approximatePlace')}
+                    </AppText>
+                )}
                 {position && (
                     <FadeIn index={1}>
                         <Button label={t('navigate')} icon="navigate" variant="secondary" size="md" onPress={() => navigateTo(position)} />
+                    </FadeIn>
+                )}
+                {atDoor && (
+                    <FadeIn index={1}>
+                        <SaveDoorLocationButton parcel={parcel} onSaved={refresh} />
                     </FadeIn>
                 )}
                 {warehouse && (

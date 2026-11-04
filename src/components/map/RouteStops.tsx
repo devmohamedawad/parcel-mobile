@@ -32,7 +32,7 @@ export default function RouteStops({ stops, selected, onSelect }: RouteStopsProp
 
                 return (
                     <Marker key={tracking} id={tracking} lngLat={stop.position} onPress={() => onSelect(selected === tracking ? null : tracking)}>
-                        <StopPin label={String(stop.number)} tone={selected === tracking || (selected === null && stop.number === 1) ? 'next' : 'open'} />
+                        <StopPin label={String(stop.number)} tone={selected === tracking || (selected === null && stop.number === 1) ? 'next' : stop.parcel.approximate ? 'approx' : 'open'} />
                     </Marker>
                 );
             })}

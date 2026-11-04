@@ -42,6 +42,8 @@ export interface ParcelCard {
     line: string;
     latitude: string | null;
     longitude: string | null;
+    /** The place is the middle of the area, not the recipient's own location. */
+    approximate?: boolean;
     cod_amount: string;
     currency: string;
     actions: ParcelAction[];
@@ -117,6 +119,8 @@ export interface Stop {
     notes: string | null;
     latitude: string | null;
     longitude: string | null;
+    /** The place is the middle of the area, not the recipient's own location. */
+    approximate?: boolean;
 }
 
 export interface ParcelDetail {
