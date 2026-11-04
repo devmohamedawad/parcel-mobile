@@ -1,5 +1,7 @@
+import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { api, ApiError } from '@/lib/api';
 
 interface Remote<T> {
@@ -12,7 +14,10 @@ interface Remote<T> {
     refresh: () => Promise<void>;
 }
 
-/** Loads an API path and reloads it every time the screen comes into view. */
+/**
+ * Loads an API path and reloads it every time the screen comes into view; while it is in view it also
+ * reloads when a notification arrives (new task, handover) and when the app comes back to the front.
+ */
 export function useRemote<T>(path: string | null): Remote<T> {
     const [data, setData] = useState<T | null>(null);
     const [error, setError] = useState<ApiError | null>(null);
@@ -42,6 +47,13 @@ export function useRemote<T>(path: string | null): Remote<T> {
     useFocusEffect(
         useCallback(() => {
             load();
+            const notification = Notifications.addNotificationReceivedListener(() => load());
+            const appState = AppState.addEventListener('change', (state) => state === 'active' && load());
+
+            return () => {
+                notification.remove();
+                appState.remove();
+            };
         }, [load]),
     );
 
