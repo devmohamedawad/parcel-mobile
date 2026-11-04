@@ -71,10 +71,22 @@ export interface WaitingParcel {
     area: Translated | null;
 }
 
+/** A parcel collected on a visit by its scanned code: a blank label or the merchant's own barcode. */
+export interface UnlistedParcel {
+    id: number;
+    code: string;
+    reserved: boolean;
+    merchant: string;
+    pickup_request_id: number;
+    collected_at: string;
+}
+
 export interface TodayWork {
     pickup_stops: PickupStop[];
     pickups: ParcelCard[];
     in_hand: ParcelCard[];
+    /** Collected without being in the system; carried until left at the warehouse. */
+    unlisted: UnlistedParcel[];
     deliveries: ParcelCard[];
     returns: ParcelCard[];
     route_url: string | null;

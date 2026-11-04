@@ -6,15 +6,16 @@ import ParcelTaskCard from '@/components/tasks/ParcelTaskCard';
 import ParcelFinder from '@/components/tasks/ParcelFinder';
 import PickupStopCard from '@/components/tasks/PickupStopCard';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
+import UnlistedParcelCard from '@/components/tasks/UnlistedParcelCard';
 import AppText from '@/components/ui/AppText';
 import FadeIn from '@/components/ui/FadeIn';
 import { useRemote } from '@/hooks/useRemote';
 import { formatDay } from '@/lib/format';
 import type { StringKey } from '@/lib/i18n';
-import type { ParcelCard, PickupStop, TodayWork } from '@/lib/types';
+import type { ParcelCard, PickupStop, TodayWork, UnlistedParcel } from '@/lib/types';
 import { colors } from '@/theme';
 
-type Row = { kind: 'stop'; stop: PickupStop } | { kind: 'parcel'; parcel: ParcelCard; next: boolean };
+type Row = { kind: 'stop'; stop: PickupStop } | { kind: 'parcel'; parcel: ParcelCard; next: boolean } | { kind: 'unlisted'; parcel: UnlistedParcel };
 
 function sections(work: TodayWork): { title: StringKey; data: Row[] }[] {
     const parcels = (list: ParcelCard[], markFirst = false): Row[] => list.map((parcel, index) => ({ kind: 'parcel', parcel, next: markFirst && index === 0 }));
@@ -24,6 +25,7 @@ function sections(work: TodayWork): { title: StringKey; data: Row[] }[] {
         { title: 'sectionVisits' as const, data: work.pickup_stops.map((stop): Row => ({ kind: 'stop', stop })) },
         { title: 'sectionCollect' as const, data: parcels(work.pickups) },
         { title: 'sectionInHand' as const, data: parcels(work.in_hand) },
+        { title: 'sectionUnlisted' as const, data: (work.unlisted ?? []).map((parcel): Row => ({ kind: 'unlisted', parcel })) },
         { title: 'sectionReturns' as const, data: parcels(work.returns) },
     ].filter((section) => section.data.length > 0);
 }
@@ -45,7 +47,7 @@ export default function Tasks() {
             </View>
             <SectionList
                 sections={list}
-                keyExtractor={(row) => (row.kind === 'stop' ? `stop-${row.stop.id}` : row.parcel.tracking_number)}
+                keyExtractor={(row) => (row.kind === 'stop' ? `stop-${row.stop.id}` : row.kind === 'unlisted' ? `unlisted-${row.parcel.id}` : row.parcel.tracking_number)}
                 contentContainerStyle={styles.body}
                 stickySectionHeadersEnabled={false}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} colors={[colors.brand]} tintColor={colors.brand} />}
@@ -62,7 +64,11 @@ export default function Tasks() {
                         {t(section.title)} · {section.data.length}
                     </AppText>
                 )}
-                renderItem={({ item, index }) => <FadeIn index={index}>{item.kind === 'stop' ? <PickupStopCard stop={item.stop} /> : <ParcelTaskCard parcel={item.parcel} next={item.next} />}</FadeIn>}
+                renderItem={({ item, index }) => (
+                    <FadeIn index={index}>
+                        {item.kind === 'stop' ? <PickupStopCard stop={item.stop} /> : item.kind === 'unlisted' ? <UnlistedParcelCard parcel={item.parcel} onLeft={refresh} /> : <ParcelTaskCard parcel={item.parcel} next={item.next} />}
+                    </FadeIn>
+                )}
                 ItemSeparatorComponent={() => <View style={styles.gap} />}
             />
         </SafeAreaView>

@@ -8,8 +8,11 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import Stepper from '@/components/ui/Stepper';
 import TopBar from '@/components/ui/TopBar';
+import UnlistedCodesList from '@/components/visit/UnlistedCodesList';
+import VisitScanner from '@/components/visit/VisitScanner';
 import WaitingParcelsList from '@/components/visit/WaitingParcelsList';
 import { useRemote } from '@/hooks/useRemote';
+import { useVisitScan } from '@/hooks/useVisitScan';
 import { api } from '@/lib/api';
 import { alertWorkError } from '@/lib/workAlert';
 import type { TodayWork } from '@/lib/types';
@@ -25,8 +28,9 @@ export default function MerchantVisit() {
     const { data } = useRemote<TodayWork>('today');
     const stop = data?.pickup_stops.find((candidate) => String(candidate.id) === id);
     const [collected, setCollected] = useState<number | null>(null);
-    const [ticked, setTicked] = useState<number[] | null>(null);
+    const [scanning, setScanning] = useState(false);
     const [busy, setBusy] = useState(false);
+    const visit = useVisitScan(stop?.waiting_parcels ?? []);
 
     if (!stop) {
         return (
@@ -38,19 +42,19 @@ export default function MerchantVisit() {
     }
 
     const waiting = stop.waiting_parcels;
-    const selected = ticked ?? waiting.map((parcel) => parcel.id);
-    const count = collected ?? (waiting.length > 0 ? selected.length : (stop.expected_parcels ?? 0));
+    const recorded = visit.selected.length + visit.unlisted.length;
+    // The count follows what was ticked and scanned; the rider can still raise it for parcels with no label at all.
+    const count = Math.max(collected ?? (recorded > 0 || waiting.length > 0 ? recorded : (stop.expected_parcels ?? 0)), recorded);
 
-    // Ticking follows the count; the rider can still raise it for parcels not in the system yet.
     const tick = (ids: number[]) => {
-        setTicked(ids);
-        setCollected(ids.length);
+        visit.tick(ids);
+        setCollected(null);
     };
 
     const done = async () => {
         setBusy(true);
         try {
-            await api(`pickup-stops/${stop.id}/complete`, { method: 'POST', body: { collected_parcels: count, parcel_ids: selected } });
+            await api(`pickup-stops/${stop.id}/complete`, { method: 'POST', body: { collected_parcels: count, parcel_ids: visit.selected, scanned_ids: visit.scanned, unlisted: visit.unlisted } });
             router.back();
         } catch (exception) {
             alertWorkError(exception, t);
@@ -64,8 +68,10 @@ export default function MerchantVisit() {
             <TopBar title={stop.merchant} />
             <ScrollView contentContainerStyle={styles.body}>
                 <ContactCard title={t('collectFrom')} stop={{ contact: stop.contact, phone: stop.phone, alt_phone: null, governorate: stop.governorate, area: stop.area, line: stop.line ?? '', notes: [stop.notes, stop.merchant_notes].filter(Boolean).join('\n') || null, latitude: null, longitude: null }} />
-                {waiting.length > 0 && <WaitingParcelsList parcels={waiting} selected={selected} onChange={tick} />}
-                <Stepper label={t('collectedParcels')} value={count} onChange={setCollected} max={MAX_PARCELS} min={selected.length} />
+                <Button label={t('visitScan')} icon="barcode-outline" variant="outline" size="md" onPress={() => setScanning(true)} testID="visit-scan" />
+                {waiting.length > 0 && <WaitingParcelsList parcels={waiting} selected={visit.selected} scanned={visit.scanned} onChange={tick} />}
+                {visit.unlisted.length > 0 && <UnlistedCodesList codes={visit.unlisted} onRemove={visit.removeUnlisted} />}
+                <Stepper label={t('collectedParcels')} value={count} onChange={setCollected} max={MAX_PARCELS} min={recorded} />
                 {waiting.length > 0 && (
                     <AppText size={13} color={colors.muted}>
                         {t('raiseCountHint')}
@@ -75,6 +81,7 @@ export default function MerchantVisit() {
             <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
                 <Button label={t('visitDone')} icon="checkmark-circle" onPress={done} busy={busy} haptic testID="visit-done" />
             </View>
+            {scanning && <VisitScanner onScan={visit.scan} onClose={() => setScanning(false)} />}
         </View>
     );
 }

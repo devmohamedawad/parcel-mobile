@@ -10,11 +10,13 @@ import { colors } from '@/theme';
 interface WaitingParcelsListProps {
     parcels: WaitingParcel[];
     selected: number[];
+    /** Ticked by a scan of the label (the rest are ticked by hand). */
+    scanned?: number[];
     onChange: (ids: number[]) => void;
 }
 
 /** The merchant's waiting parcels: tick the ones handed over; unticked ones stay waiting. */
-export default function WaitingParcelsList({ parcels, selected, onChange }: WaitingParcelsListProps) {
+export default function WaitingParcelsList({ parcels, selected, scanned = [], onChange }: WaitingParcelsListProps) {
     const { t, locale } = useAuth();
     const allTicked = selected.length === parcels.length;
     const toggle = (id: number) => onChange(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
@@ -43,6 +45,7 @@ export default function WaitingParcelsList({ parcels, selected, onChange }: Wait
                             testID={`waiting-${parcel.tracking_number}`}
                         >
                             <Icon name={ticked ? 'checkbox' : 'square-outline'} size={24} color={ticked ? colors.brand : colors.subtle} />
+                            {scanned.includes(parcel.id) && <Icon name="barcode-outline" size={18} color={colors.success} />}
                             <View style={styles.grow}>
                                 <AppText weight="bold" size={15} numberOfLines={1}>
                                     {parcel.recipient}
