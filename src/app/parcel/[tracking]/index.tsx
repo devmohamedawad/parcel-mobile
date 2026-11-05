@@ -5,6 +5,7 @@ import StopMap from '@/components/map/StopMap';
 import ActionBar from '@/components/parcel/ActionBar';
 import ContactCard from '@/components/parcel/ContactCard';
 import ParcelFacts from '@/components/parcel/ParcelFacts';
+import ParcelNotesCard from '@/components/parcel/ParcelNotesCard';
 import SaveDoorLocationButton from '@/components/parcel/SaveDoorLocationButton';
 import ScanBanner from '@/components/parcel/ScanBanner';
 import TasksEmpty from '@/components/tasks/TasksEmpty';
@@ -82,6 +83,9 @@ export default function ParcelScreen() {
                         <Button label={t('warehouseDirections')} icon="business" variant="outline" size="md" onPress={() => navigateTo([warehouse.longitude, warehouse.latitude])} testID="warehouse-directions" />
                     </FadeIn>
                 )}
+                <FadeIn index={2}>
+                    <ParcelNotesCard parcel={parcel} onSent={refresh} />
+                </FadeIn>
                 <FadeIn index={2}>
                     <ParcelFacts parcel={parcel} />
                 </FadeIn>

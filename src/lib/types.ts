@@ -129,6 +129,15 @@ export interface Stop {
     area_longitude?: string | null;
 }
 
+/** A note between the branch and the rider on a parcel. */
+export interface ParcelNote {
+    id: number;
+    body: string;
+    author: string | null;
+    by_rider: boolean;
+    created_at: string;
+}
+
 export interface ParcelDetail {
     tracking_number: string;
     status: string;
@@ -151,4 +160,6 @@ export interface ParcelDetail {
     /** The step recorded as soon as the rider scans this label (collected, taken out of the warehouse), or null when the rider has to choose. */
     scan_action: ParcelAction | null;
     failure_reasons: { value: string; label: string }[];
+    /** Notes between the branch and the rider, oldest first (never shown to the merchant). */
+    notes: ParcelNote[];
 }
