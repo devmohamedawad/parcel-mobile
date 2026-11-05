@@ -61,7 +61,7 @@ export default function Button({ label, onPress, variant = 'primary', icon, busy
             ) : (
                 <View style={styles.content}>
                     {icon && <Icon name={icon} size={textSize + 3} color={look.text} />}
-                    <AppText weight="extrabold" size={textSize} color={look.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={styles.label}>
+                    <AppText weight="extrabold" size={textSize} color={look.text}>
                         {label}
                     </AppText>
                 </View>
@@ -72,7 +72,6 @@ export default function Button({ label, onPress, variant = 'primary', icon, busy
 
 const styles = StyleSheet.create({
     base: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-    content: { flexDirection: 'row', alignItems: 'center', gap: 8, maxWidth: '100%' },
-    label: { flexShrink: 1 },
+    content: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     dimmed: { opacity: 0.7 },
 });

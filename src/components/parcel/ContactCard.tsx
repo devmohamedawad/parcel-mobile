@@ -1,20 +1,13 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/auth/AuthContext';
 import AppText from '@/components/ui/AppText';
 import Card from '@/components/ui/Card';
-import Icon, { type IconName } from '@/components/ui/Icon';
+import Icon from '@/components/ui/Icon';
+import RoundButton from '@/components/ui/RoundButton';
 import { callPhone, openWhatsApp } from '@/lib/links';
 import { placeText } from '@/lib/stops';
 import type { Stop } from '@/lib/types';
 import { colors } from '@/theme';
-
-function RoundButton({ icon, label, onPress, background, color }: { icon: IconName; label: string; onPress: () => void; background: string; color: string }) {
-    return (
-        <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={({ pressed }) => [styles.round, { backgroundColor: background }, pressed && { opacity: 0.75 }]}>
-            <Icon name={icon} size={22} color={color} />
-        </Pressable>
-    );
-}
 
 /** Who to meet at the stop, how to reach them and where. */
 export default function ContactCard({ title, stop }: { title: string; stop: Stop }) {
@@ -62,7 +55,6 @@ const styles = StyleSheet.create({
     row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     names: { flex: 1, minWidth: 0 },
     ltr: { writingDirection: 'ltr', alignSelf: 'flex-start' },
-    round: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
     divider: { height: 1, backgroundColor: colors.divider },
     place: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
     grow: { flex: 1 },

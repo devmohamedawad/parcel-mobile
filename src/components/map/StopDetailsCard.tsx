@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/AuthContext';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
+import RoundButton from '@/components/ui/RoundButton';
 import { callPhone, navigateTo } from '@/lib/links';
 import { lngLat, localized } from '@/lib/stops';
 import type { ParcelCard } from '@/lib/types';
@@ -17,8 +18,8 @@ interface StopDetailsCardProps {
 }
 
 /**
- * The tapped stop at the bottom of the map: who, where and the cash to collect, with call, navigate
- * and open. Drawn over the map, not inside it, so its buttons always respond.
+ * The tapped stop at the bottom of the map: who, where and the cash to collect, with call and navigate
+ * (icons, so the three fit on a phone) and open. Drawn over the map, not inside it, so its buttons always respond.
  */
 export default function StopDetailsCard({ parcel, number, onClose }: StopDetailsCardProps) {
     const { t, locale } = useAuth();
@@ -57,16 +58,8 @@ export default function StopDetailsCard({ parcel, number, onClose }: StopDetails
                 {collectsCash ? t('money', { amount: parcel.cod_amount, currency: parcel.currency }) : t('paid')}
             </AppText>
             <View style={styles.buttons}>
-                {parcel.phone && (
-                    <View style={styles.button}>
-                        <Button label={t('call')} icon="call-outline" variant="outline" size="md" onPress={() => callPhone(parcel.phone ?? '')} />
-                    </View>
-                )}
-                {position && (
-                    <View style={styles.button}>
-                        <Button label={t('navigate')} icon="navigate-outline" variant="outline" size="md" onPress={() => navigateTo(position)} />
-                    </View>
-                )}
+                {parcel.phone && <RoundButton icon="call-outline" label={t('call')} onPress={() => callPhone(parcel.phone ?? '')} background={colors.brandSoft} color={colors.brandText} size={52} testID="stop-details-call" />}
+                {position && <RoundButton icon="navigate-outline" label={t('navigate')} onPress={() => navigateTo(position)} background={colors.brandSoft} color={colors.brandText} size={52} testID="stop-details-navigate" />}
                 <View style={styles.button}>
                     <Button label={t('details')} icon="open-outline" size="md" onPress={() => router.push({ pathname: '/parcel/[tracking]', params: { tracking: parcel.tracking_number } })} testID="stop-details-open" />
                 </View>
