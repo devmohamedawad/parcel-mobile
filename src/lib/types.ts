@@ -44,6 +44,9 @@ export interface ParcelCard {
     longitude: string | null;
     /** The place is the middle of the area, not the recipient's own location. */
     approximate?: boolean;
+    /** The middle of the stop's area, used when its own place is unknown. */
+    area_latitude?: string | null;
+    area_longitude?: string | null;
     cod_amount: string;
     currency: string;
     actions: ParcelAction[];
@@ -121,6 +124,9 @@ export interface Stop {
     longitude: string | null;
     /** The place is the middle of the area, not the recipient's own location. */
     approximate?: boolean;
+    /** The middle of the stop's area, used when its own place is unknown. */
+    area_latitude?: string | null;
+    area_longitude?: string | null;
 }
 
 export interface ParcelDetail {

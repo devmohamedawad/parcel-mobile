@@ -15,13 +15,20 @@ export function placeText(stop: Pick<Stop, 'area' | 'line'>, locale: Locale): st
     return [localized(stop.area, locale), stop.line].filter(Boolean).join(' · ');
 }
 
-/** [longitude, latitude] for the map, or null when the stop has no position. */
-export function lngLat(stop: Pick<Stop, 'latitude' | 'longitude'>): [number, number] | null {
-    if (stop.latitude === null || stop.longitude === null) {
-        return null;
+/**
+ * [longitude, latitude] for the map: the stop's own place, or else the middle of its area (the stop is
+ * then `approximate`); null when neither is known.
+ */
+export function lngLat(stop: Pick<Stop, 'latitude' | 'longitude' | 'area_latitude' | 'area_longitude'>): [number, number] | null {
+    if (stop.latitude !== null && stop.longitude !== null) {
+        return [Number(stop.longitude), Number(stop.latitude)];
     }
 
-    return [Number(stop.longitude), Number(stop.latitude)];
+    if (stop.area_latitude != null && stop.area_longitude != null) {
+        return [Number(stop.area_longitude), Number(stop.area_latitude)];
+    }
+
+    return null;
 }
 
 /** Every parcel still on the rider's list, in the order they are worked. */
