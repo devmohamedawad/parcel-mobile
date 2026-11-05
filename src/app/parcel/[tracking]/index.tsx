@@ -13,6 +13,7 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import FadeIn from '@/components/ui/FadeIn';
 import TopBar from '@/components/ui/TopBar';
+import { useHeadThere } from '@/hooks/useHeadThere';
 import { useParcelUpdate } from '@/hooks/useParcelUpdate';
 import { useRemote } from '@/hooks/useRemote';
 import { navigateTo } from '@/lib/links';
@@ -25,6 +26,7 @@ export default function ParcelScreen() {
     const { t, user } = useAuth();
     const { data: parcel, error, loading, refreshing, refresh } = useRemote<ParcelDetail>(`parcels/${tracking}`);
     const { send, busy } = useParcelUpdate(tracking);
+    const headThere = useHeadThere(parcel ?? { tracking_number: tracking, status: '' }, parcel ? lngLat(parcel.status === 'pickup_assigned' ? parcel.pickup : parcel.delivery) : null, refresh);
 
     if (loading || !parcel) {
         return (
@@ -70,7 +72,7 @@ export default function ParcelScreen() {
                 )}
                 {position && (
                     <FadeIn index={1}>
-                        <Button label={t('navigate')} icon="navigate" variant="secondary" size="md" onPress={() => navigateTo(position)} />
+                        <Button label={headThere.label} icon="navigate" variant="secondary" size="md" onPress={headThere.go} testID="parcel-head-there" />
                     </FadeIn>
                 )}
                 {atDoor && (

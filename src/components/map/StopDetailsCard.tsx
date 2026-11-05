@@ -5,7 +5,8 @@ import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
 import RoundButton from '@/components/ui/RoundButton';
-import { callPhone, navigateTo } from '@/lib/links';
+import { useHeadThere } from '@/hooks/useHeadThere';
+import { callPhone } from '@/lib/links';
 import { lngLat, localized } from '@/lib/stops';
 import type { ParcelCard } from '@/lib/types';
 import { colors, radius, shadow } from '@/theme';
@@ -25,6 +26,7 @@ export default function StopDetailsCard({ parcel, number, onClose }: StopDetails
     const { t, locale } = useAuth();
     const collectsCash = Number(parcel.cod_amount) > 0;
     const position = lngLat(parcel);
+    const headThere = useHeadThere(parcel, position);
 
     return (
         <View style={styles.card} testID="stop-details">
@@ -59,7 +61,7 @@ export default function StopDetailsCard({ parcel, number, onClose }: StopDetails
             </AppText>
             <View style={styles.buttons}>
                 {parcel.phone && <RoundButton icon="call-outline" label={t('call')} onPress={() => callPhone(parcel.phone ?? '')} background={colors.brandSoft} color={colors.brandText} size={52} testID="stop-details-call" />}
-                {position && <RoundButton icon="navigate-outline" label={t('navigate')} onPress={() => navigateTo(position)} background={colors.brandSoft} color={colors.brandText} size={52} testID="stop-details-navigate" />}
+                {position && <RoundButton icon="navigate-outline" label={headThere.label} onPress={headThere.go} background={colors.brandSoft} color={colors.brandText} size={52} testID="stop-details-navigate" />}
                 <View style={styles.button}>
                     <Button label={t('details')} icon="open-outline" size="md" onPress={() => router.push({ pathname: '/parcel/[tracking]', params: { tracking: parcel.tracking_number } })} testID="stop-details-open" />
                 </View>

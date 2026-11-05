@@ -4,15 +4,17 @@ import { useAuth } from '@/auth/AuthContext';
 import ParcelTaskCard from '@/components/tasks/ParcelTaskCard';
 import AppText from '@/components/ui/AppText';
 import Button from '@/components/ui/Button';
-import { callPhone, navigateTo } from '@/lib/links';
+import { useHeadThere } from '@/hooks/useHeadThere';
+import { callPhone } from '@/lib/links';
 import { lngLat } from '@/lib/stops';
 import type { ParcelCard } from '@/lib/types';
 import { colors } from '@/theme';
 
-/** The first delivery in route order, with call and navigate buttons. */
+/** The first delivery in route order, with call and head-there buttons. */
 export default function NextStopCard({ parcel }: { parcel: ParcelCard }) {
     const { t } = useAuth();
     const position = lngLat(parcel);
+    const headThere = useHeadThere(parcel, position);
 
     return (
         <View style={styles.wrap}>
@@ -33,7 +35,7 @@ export default function NextStopCard({ parcel }: { parcel: ParcelCard }) {
                 )}
                 {position && (
                     <View style={styles.button}>
-                        <Button label={t('navigate')} icon="navigate" size="md" onPress={() => navigateTo(position)} />
+                        <Button label={headThere.label} icon="navigate" size="md" onPress={headThere.go} testID="next-stop-head-there" />
                     </View>
                 )}
             </View>
