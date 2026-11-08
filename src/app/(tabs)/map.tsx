@@ -8,9 +8,8 @@ import StopDetailsCard from '@/components/map/StopDetailsCard';
 import UnlocatedStops from '@/components/map/UnlocatedStops';
 import AppText from '@/components/ui/AppText';
 import Icon from '@/components/ui/Icon';
-import { useRemote } from '@/hooks/useRemote';
+import { useToday } from '@/hooks/useToday';
 import { lngLat, routeStops } from '@/lib/stops';
-import type { TodayWork } from '@/lib/types';
 import { colors, radius, shadow } from '@/theme';
 
 export default function MapScreen() {
@@ -19,7 +18,7 @@ export default function MapScreen() {
     const [follow, setFollow] = useState(true);
     // Bumped to fit the camera to every stop: once when the stops first load, and from the button.
     const [overviewKey, setOverviewKey] = useState(0);
-    const { data: work } = useRemote<TodayWork>('today');
+    const { data: work } = useToday();
     const deliveries = work?.deliveries ?? [];
     const unlocated = deliveries.filter((parcel) => lngLat(parcel) === null);
     const located = deliveries.length - unlocated.length;

@@ -11,11 +11,10 @@ import TopBar from '@/components/ui/TopBar';
 import UnlistedCodesList from '@/components/visit/UnlistedCodesList';
 import VisitScanner from '@/components/visit/VisitScanner';
 import WaitingParcelsList from '@/components/visit/WaitingParcelsList';
-import { useRemote } from '@/hooks/useRemote';
+import { useToday } from '@/hooks/useToday';
 import { useVisitScan } from '@/hooks/useVisitScan';
 import { api } from '@/lib/api';
 import { alertWorkError } from '@/lib/workAlert';
-import type { TodayWork } from '@/lib/types';
 import { colors } from '@/theme';
 
 /** Most parcels recorded for one visit (the server's PickupRequest::MAX_PARCELS). */
@@ -25,7 +24,7 @@ export default function MerchantVisit() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { t } = useAuth();
     const insets = useSafeAreaInsets();
-    const { data } = useRemote<TodayWork>('today');
+    const { data } = useToday();
     const stop = data?.pickup_stops.find((candidate) => String(candidate.id) === id);
     const [collected, setCollected] = useState<number | null>(null);
     const [scanning, setScanning] = useState(false);

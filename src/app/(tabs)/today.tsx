@@ -9,15 +9,14 @@ import OnShiftCard from '@/components/today/OnShiftCard';
 import ParcelFinder from '@/components/tasks/ParcelFinder';
 import TodayHeader from '@/components/today/TodayHeader';
 import FadeIn from '@/components/ui/FadeIn';
-import { useRemote } from '@/hooks/useRemote';
+import { useToday } from '@/hooks/useToday';
 import { registerForPush } from '@/lib/push';
-import type { TodayWork } from '@/lib/types';
 import { useShift } from '@/tracking/useShift';
 import { colors } from '@/theme';
 
 export default function Today() {
     const { shift, tracking, busy, needsPermission, lastShift, waiting, start, end, openSettings } = useShift();
-    const { data: work, refreshing, refresh } = useRemote<TodayWork>('today');
+    const { data: work, refreshing, refresh } = useToday();
     const finished = work ? work.done_today.delivered + work.done_today.failed : 0;
     const next = work?.deliveries[0];
 

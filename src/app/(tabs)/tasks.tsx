@@ -9,7 +9,7 @@ import TasksEmpty from '@/components/tasks/TasksEmpty';
 import UnlistedParcelCard from '@/components/tasks/UnlistedParcelCard';
 import AppText from '@/components/ui/AppText';
 import FadeIn from '@/components/ui/FadeIn';
-import { useRemote } from '@/hooks/useRemote';
+import { useToday } from '@/hooks/useToday';
 import { formatDay } from '@/lib/format';
 import type { StringKey } from '@/lib/i18n';
 import type { ParcelCard, PickupStop, TodayWork, UnlistedParcel } from '@/lib/types';
@@ -32,7 +32,7 @@ function sections(work: TodayWork): { title: StringKey; data: Row[] }[] {
 
 export default function Tasks() {
     const { t, locale } = useAuth();
-    const { data, error, loading, refreshing, refresh } = useRemote<TodayWork>('today');
+    const { data, error, loading, refreshing, refresh } = useToday();
     const list = data ? sections(data) : [];
 
     return (
