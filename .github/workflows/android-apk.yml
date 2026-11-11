@@ -1,0 +1,73 @@
+# Builds the Android APK on GitHub's machines (EAS local build, no EAS cloud quota) and keeps it
+# as a run artifact. Runs on every push to main and by hand from the Actions tab.
+#
+# Repository secrets needed (Settings → Secrets and variables → Actions):
+#   EXPO_TOKEN            – an Expo access token (expo.dev → Account settings → Access tokens); the build
+#                           reads the signing keystore and the version code from EAS with it.
+#   GOOGLE_SERVICES_JSON  – the whole content of google-services.json (Firebase, for push).
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: EAS build profile
+        default: preview
+        type: choice
+        options: [preview, development]
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EAS_SKIP_AUTO_FINGERPRINT: '1'
+      # Riders' phones are arm64; one ABI keeps the build about four times shorter.
+      ORG_GRADLE_PROJECT_reactNativeArchitectures: arm64-v8a
+    steps:
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
+
+      - name: Install dependencies and the EAS tools
+        run: |
+          npm ci
+          npm install --global eas-cli eas-cli-local-build-plugin
+
+      - name: Write google-services.json
+        run: printf '%s' "$GOOGLE_SERVICES_JSON" > "$RUNNER_TEMP/google-services.json"
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
+      - name: Build the APK
+        run: |
+          export EAS_LOCAL_BUILD_PLUGIN_PATH="$(npm prefix --global)/bin/eas-cli-local-build-plugin"
+          eas build --local --non-interactive --platform android \
+            --profile "${{ inputs.profile || 'preview' }}" \
+            --output "$RUNNER_TEMP/babjet-rider.apk"
+        env:
+          GOOGLE_SERVICES_JSON: ${{ runner.temp }}/google-services.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: babjet-rider-${{ inputs.profile || 'preview' }}-${{ github.run_number }}
+          path: ${{ runner.temp }}/babjet-rider.apk
+          retention-days: 30
