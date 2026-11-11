@@ -32,6 +32,18 @@ jobs:
       # Riders' phones are arm64; one ABI keeps the build about four times shorter.
       ORG_GRADLE_PROJECT_reactNativeArchitectures: arm64-v8a
     steps:
+      - name: Check the secrets are set
+        run: |
+          missing=""
+          [ -n "$EXPO_TOKEN" ] || missing="$missing EXPO_TOKEN"
+          [ -n "$GOOGLE_SERVICES_JSON" ] || missing="$missing GOOGLE_SERVICES_JSON"
+          if [ -n "$missing" ]; then
+            echo "::error::Add the repository secrets:$missing (Settings → Secrets and variables → Actions)"
+            exit 1
+          fi
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+
       - name: Free disk space
         run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
 
