@@ -45,9 +45,9 @@ export function useRoadToStop(trackingNumber: string | null, place: [number, num
                 lastAsked.current = Date.now();
                 try {
                     const { latitude, longitude } = fix.coords;
-                    const result = await api<{ data: Road }>(`parcels/${trackingNumber}/road?latitude=${latitude.toFixed(6)}&longitude=${longitude.toFixed(6)}`);
+                    const result = await api<Road>(`parcels/${trackingNumber}/road?latitude=${latitude.toFixed(6)}&longitude=${longitude.toFixed(6)}`);
                     if (active) {
-                        setRoad(result.data);
+                        setRoad(result);
                     }
                 } catch {
                     // Offline or the stop is gone: keep the last road until the list reloads.
