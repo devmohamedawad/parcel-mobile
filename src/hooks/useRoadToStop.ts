@@ -1,0 +1,79 @@
+import * as Location from 'expo-location';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import { api } from '@/lib/api';
+
+/** The way from the rider to a stop: along the roads, or a straight line when the server has no road. */
+export interface Road {
+    /** [longitude, latitude], from the rider to the stop. */
+    coordinates: [number, number][];
+    by_road: boolean;
+    distance_m: number | null;
+    duration_s: number | null;
+}
+
+/** Ask again after the rider moved this far, but not more often than every few seconds. */
+const MOVED_METRES = 50;
+const MIN_INTERVAL_MS = 8_000;
+
+/**
+ * The road from where the rider is to a parcel's stop, while the screen is in view; it follows the
+ * rider as they drive and is asked again when the stop or its place changes. Null until known.
+ */
+export function useRoadToStop(trackingNumber: string | null, place: [number, number] | null): Road | null {
+    const [road, setRoad] = useState<Road | null>(null);
+    const lastAsked = useRef(0);
+    const placeKey = place ? place.join(',') : '';
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!trackingNumber || !placeKey) {
+                setRoad(null);
+                return;
+            }
+
+            // A road to the previous stop must not stay on the map while the new one loads.
+            setRoad(null);
+            let active = true;
+            let subscription: Location.LocationSubscription | null = null;
+            lastAsked.current = 0;
+
+            const ask = async (fix: Location.LocationObject | null) => {
+                if (!fix || Date.now() - lastAsked.current < MIN_INTERVAL_MS) {
+                    return;
+                }
+                lastAsked.current = Date.now();
+                try {
+                    const { latitude, longitude } = fix.coords;
+                    const result = await api<{ data: Road }>(`parcels/${trackingNumber}/road?latitude=${latitude.toFixed(6)}&longitude=${longitude.toFixed(6)}`);
+                    if (active) {
+                        setRoad(result.data);
+                    }
+                } catch {
+                    // Offline or the stop is gone: keep the last road until the list reloads.
+                }
+            };
+
+            (async () => {
+                try {
+                    await ask(await Location.getLastKnownPositionAsync({ maxAge: 5 * 60_000 }));
+                    const watch = await Location.watchPositionAsync({ accuracy: Location.Accuracy.Balanced, distanceInterval: MOVED_METRES }, (fix) => ask(fix));
+                    if (active) {
+                        subscription = watch;
+                    } else {
+                        watch.remove();
+                    }
+                } catch {
+                    // No location permission: the map shows the stops without the road.
+                }
+            })();
+
+            return () => {
+                active = false;
+                subscription?.remove();
+            };
+        }, [trackingNumber, placeKey]),
+    );
+
+    return road;
+}

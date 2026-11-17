@@ -3,11 +3,13 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/auth/AuthContext';
 import RiderMap from '@/components/map/RiderMap';
+import RoadToNextStop from '@/components/map/RoadToNextStop';
 import RouteStops from '@/components/map/RouteStops';
 import StopDetailsCard from '@/components/map/StopDetailsCard';
 import UnlocatedStops from '@/components/map/UnlocatedStops';
 import AppText from '@/components/ui/AppText';
 import Icon from '@/components/ui/Icon';
+import { useRoadToStop } from '@/hooks/useRoadToStop';
 import { useToday } from '@/hooks/useToday';
 import { lngLat, routeStops } from '@/lib/stops';
 import { colors, radius, shadow } from '@/theme';
@@ -27,6 +29,9 @@ export default function MapScreen() {
     const [selected, setSelected] = useState<string | null>(null);
     const open = stops.find((stop) => stop.parcel.tracking_number === selected);
     const hasStops = stops.length > 0;
+    // The road is drawn to stop 1 (the next one), not to a later stop the rider taps to read.
+    const next = stops[0]?.number === 1 ? stops[0] : null;
+    const road = useRoadToStop(next?.parcel.tracking_number ?? null, next?.position ?? null);
 
     const showAllStops = () => {
         setFollow(false);
@@ -39,11 +44,13 @@ export default function MapScreen() {
             showAllStops();
         }
     }, [hasStops]);
-    const subtitle = deliveries.length > 0 ? (located === 0 ? t('noTasksOnMap') : unlocated.length > 0 ? t('stopsOnMap', { count: located, total: deliveries.length }) : t('stopsCount', { count: located })) : onShift ? t('trackingOn') : t('mapOffShift');
+    const toNext = road?.by_road && road.duration_s !== null && road.distance_m !== null ? t('nextStopIn', { minutes: Math.max(1, Math.round(road.duration_s / 60)), km: (road.distance_m / 1000).toFixed(1) }) : null;
+    const subtitle = toNext ?? (deliveries.length > 0 ? (located === 0 ? t('noTasksOnMap') : unlocated.length > 0 ? t('stopsOnMap', { count: located, total: deliveries.length }) : t('stopsCount', { count: located })) : onShift ? t('trackingOn') : t('mapOffShift'));
 
     return (
         <View style={styles.screen}>
             <RiderMap style={StyleSheet.absoluteFill} follow={follow} onFollowChange={setFollow} overview={stops.map((stop) => stop.position)} overviewKey={overviewKey}>
+                <RoadToNextStop road={road} />
                 <RouteStops stops={stops} selected={open ? selected : null} onSelect={setSelected} />
             </RiderMap>
 
