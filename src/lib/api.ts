@@ -14,6 +14,10 @@ export class ApiError extends Error {
     }
 }
 
+/** How long to wait for an answer before telling the rider there is no connection; uploads get longer. */
+const TIMEOUT_MS = 20_000;
+const UPLOAD_TIMEOUT_MS = 90_000;
+
 interface RequestOptions {
     method?: 'GET' | 'POST' | 'DELETE';
     body?: unknown;
@@ -21,13 +25,16 @@ interface RequestOptions {
 }
 
 /**
- * Calls the rider app API (`/api/rider/v1/...`) with the saved token and returns `data`.
+ * Calls the rider app API (`/api/rider/v1/...`) with the saved token and returns `data`. A request with
+ * no answer in time (the phone lost its connection) fails as `network` instead of waiting forever.
  */
 export async function api<T>(path: string, { method = 'GET', body, locale = deviceLocale() }: RequestOptions = {}): Promise<T> {
     const [token, server] = await Promise.all([getToken(), getServerUrl()]);
     // FormData (photo / signature uploads) sets its own multipart content type.
     const multipart = body instanceof FormData;
     let response: Response;
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), multipart ? UPLOAD_TIMEOUT_MS : TIMEOUT_MS);
 
     try {
         response = await fetch(`${server}/api/rider/v1/${path.replace(/^\//, '')}`, {
@@ -39,12 +46,15 @@ export async function api<T>(path: string, { method = 'GET', body, locale = devi
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: body === undefined ? undefined : multipart ? body : JSON.stringify(body),
+            signal: abort.signal,
         });
     } catch (error) {
         if (__DEV__) {
             console.warn(`API ${method} ${path} failed before an answer:`, error);
         }
         throw new ApiError(0, 'network', 'No connection to the server.');
+    } finally {
+        clearTimeout(timer);
     }
 
     if (response.status === 204) {
