@@ -1,4 +1,5 @@
 import { Marker } from '@maplibre/maplibre-react-native';
+import { useKeepAwake } from 'expo-keep-awake';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -22,12 +23,13 @@ const NAVIGATION_FOLLOW = { movedMetres: 20, minIntervalMs: 5_000 };
 /**
  * Driving to a stop inside the app: the map follows the rider's direction along the street route, the
  * next turn is written at the top, and the bottom counts down to the expected arrival. "I've arrived"
- * opens the parcel to deliver it.
+ * opens the parcel to deliver it. The screen stays on while driving.
  */
 export default function NavigateScreen() {
     const { tracking } = useLocalSearchParams<{ tracking: string }>();
     const { t } = useAuth();
     const insets = useSafeAreaInsets();
+    useKeepAwake();
     const [follow, setFollow] = useState(true);
     const { data: work, error } = useToday();
     const parcel = work ? openParcels(work).find((open) => open.tracking_number === tracking) : undefined;
