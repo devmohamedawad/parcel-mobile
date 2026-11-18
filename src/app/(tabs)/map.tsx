@@ -31,7 +31,7 @@ export default function MapScreen() {
     const hasStops = stops.length > 0;
     // The road is drawn to stop 1 (the next one), not to a later stop the rider taps to read.
     const next = stops[0]?.number === 1 ? stops[0] : null;
-    const road = useRoadToStop(next?.parcel.tracking_number ?? null, next?.position ?? null);
+    const { road } = useRoadToStop(next?.parcel.tracking_number ?? null, next?.position ?? null);
 
     const showAllStops = () => {
         setFollow(false);

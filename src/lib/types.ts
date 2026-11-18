@@ -98,6 +98,17 @@ export interface TodayWork {
     done_today: { delivered: number; failed: number };
     cash: { on_hand: string; limit: string | null; reached: boolean; currency: string };
     unread_notifications: number;
+    /** The parcel the rider pressed "Head there" on and is still driving to. */
+    heading: Heading | null;
+}
+
+/** Where the rider is driving now and when they are expected there (null when it could not be estimated). */
+export interface Heading {
+    tracking_number: string;
+    since: string;
+    expected_at: string | null;
+    distance_m: number | null;
+    duration_s: number | null;
 }
 
 /** A notification the rider was sent (new parcel, merchant visit), kept so a missed push can be read later. */

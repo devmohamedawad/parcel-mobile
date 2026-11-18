@@ -20,14 +20,16 @@ interface RiderMapProps {
     /** Places to show together ([lng, lat]); the camera fits them each time `overviewKey` changes. */
     overview?: [number, number][];
     overviewKey?: number;
+    /** Turn-by-turn driving: the map turns with the rider's direction and starts close in. */
+    navigating?: boolean;
     /** Sources, layers and markers drawn on the map. */
     children?: ReactNode;
 }
 
 /** OpenStreetMap map centred on the rider's position, or fitted to the route's stops. */
-export default function RiderMap({ style, follow, onFollowChange, still = false, overview = [], overviewKey = 0, children }: RiderMapProps) {
+export default function RiderMap({ style, follow, onFollowChange, still = false, overview = [], overviewKey = 0, navigating = false, children }: RiderMapProps) {
     const camera = useRef<CameraRef>(null);
-    const tracking: TrackUserLocation | undefined = follow ? 'default' : undefined;
+    const tracking: TrackUserLocation | undefined = follow ? (navigating ? 'course' : 'default') : undefined;
     const places = JSON.stringify(overview);
 
     useEffect(() => {
@@ -46,8 +48,8 @@ export default function RiderMap({ style, follow, onFollowChange, still = false,
 
     return (
         <Map style={style} mapStyle={MAP_STYLE} logo={false} compass={!still} scaleBar={false} dragPan={!still} touchRotate={false} touchPitch={false} attributionPosition={{ bottom: 8, left: 8 }}>
-            <Camera ref={camera} initialViewState={{ center: KUWAIT_CITY, zoom: 14 }} trackUserLocation={tracking} onTrackUserLocationChange={(event) => onFollowChange?.(event.nativeEvent.trackUserLocation !== null)} />
-            <NativeUserLocation mode={still ? 'default' : 'heading'} />
+            <Camera ref={camera} initialViewState={{ center: KUWAIT_CITY, zoom: navigating ? 16.5 : 14 }} trackUserLocation={tracking} onTrackUserLocationChange={(event) => onFollowChange?.(event.nativeEvent.trackUserLocation !== null)} />
+            <NativeUserLocation mode={still ? 'default' : navigating ? 'course' : 'heading'} />
             {children}
         </Map>
     );

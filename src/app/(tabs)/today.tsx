@@ -40,7 +40,7 @@ export default function Today() {
                         </FadeIn>
                         {next && (
                             <FadeIn index={3}>
-                                <NextStopCard parcel={next} />
+                                <NextStopCard parcel={next} heading={work?.heading ?? null} onHeadedThere={refresh} />
                             </FadeIn>
                         )}
                         <FadeIn index={4}>
